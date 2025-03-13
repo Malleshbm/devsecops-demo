@@ -5,6 +5,8 @@ COPY package*.json ./
 RUN npm ci
 COPY . .
 RUN npm run build
+RUN apk add --no-cache libxml2
+
 
 # Production stage
 FROM nginx:alpine
