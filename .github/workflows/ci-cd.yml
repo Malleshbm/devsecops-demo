@@ -175,16 +175,17 @@ jobs:
           # Verify the change
           echo "Updated deployment to use image: ${NEW_IMAGE}"
           grep -A 1 "image:" kubernetes/deployment.yaml
-      
+     
+
       - name: Commit and push changes
         run: |
-            git add kubernetes/deployment.yaml  # Stage changes before pulling
-            git commit -m "Temporary commit to allow pull" || echo "No changes to commit"
-    
-            git pull --rebase origin main  # Now pull latest changes safely
+          git stash  # Stash uncommitted changes
+          git pull --rebase origin main  # Pull latest changes
+          git stash pop  # Restore changes after pulling
 
-            git add kubernetes/deployment.yaml
-            git commit -m "Update Kubernetes deployment with new image tag: sha-${{ github.sha }} [skip ci]" || echo "No changes to commit"
+          git add kubernetes/deployment.yaml
+          git commit -m "Update Kubernetes deployment with new image tag: sha-${{ github.sha }} [skip ci]" || echo "No changes to commit"
     
-            git push origin main || echo "Nothing to push"
+          git push origin main || echo "Nothing to push"
+
 
