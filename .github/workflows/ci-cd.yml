@@ -152,13 +152,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.TOKEN }}
       
       - name: Setup Git config
         run: |
-          git config --global user.name "GitHub Actions"
-          git config --global user.email "actions@github.com"
-
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
       
       - name: Update Kubernetes deployment file
         env:
@@ -175,17 +174,9 @@ jobs:
           # Verify the change
           echo "Updated deployment to use image: ${NEW_IMAGE}"
           grep -A 1 "image:" kubernetes/deployment.yaml
-     
-
+      
       - name: Commit and push changes
         run: |
-          git stash  # Stash uncommitted changes
-          git pull --rebase origin main  # Pull latest changes
-          git stash pop  # Restore changes after pulling
-
           git add kubernetes/deployment.yaml
-          git commit -m "Update Kubernetes deployment with new image tag: sha-${{ github.sha }} [skip ci]" || echo "No changes to commit"
-    
-          git push origin main || echo "Nothing to push"
-
-
+          git commit -m "Update Kubernetes deployment with new image tag: ${{ needs.docker.outputs.image_tag }} [skip ci]" || echo "No changes to commit"
+          git push
